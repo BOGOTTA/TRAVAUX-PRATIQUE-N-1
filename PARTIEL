@@ -1,0 +1,50 @@
+#include <Servo.h>
+#include <Ultrasonic.h>
+
+const int trigPin = 2;  
+const int echoPin = 5;  
+const int rouge = 4;
+const int vert = 3;
+const int servoPin = 9;
+
+const int closedAngle = 0;
+const int openAngle = 90;
+
+Servo servo;
+Ultrasonic ultrasonic(trigPin, echoPin);
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(rouge, OUTPUT);
+  pinMode(vert, OUTPUT);
+  
+  servo.attach(servoPin);
+  servo.write(closedAngle);
+}
+
+void loop() {
+  long distance = ultrasonic.read();
+
+  if (distance > 0 && distance < 20) { // Remplacez 10 par la distance souhaitée pour activer le mécanisme
+    Serial.println("Objet detecte");
+    for (int angle = closedAngle; angle <= openAngle; angle++) {
+      servo.write(angle);
+      delay(15);
+    }
+    delay(1000);
+    digitalWrite(rouge, LOW);
+    digitalWrite(vert, HIGH);
+    delay(2000);
+    digitalWrite(rouge, HIGH);
+    digitalWrite(vert, LOW);
+    delay(1000);
+    for (int angle = openAngle; angle >= closedAngle; angle--) {
+      servo.write(angle);
+      delay(15);
+    }
+  } else {
+    digitalWrite(rouge, HIGH);
+    digitalWrite(vert, LOW);
+  }
+}
